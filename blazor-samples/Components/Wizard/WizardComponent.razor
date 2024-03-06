@@ -8,9 +8,10 @@
     }
 
     .step {
-        padding: 0.2rem !important;
+        padding: 0 !important;
         background-color: transparent !important;
         box-shadow: none !important;
+        opacity: 1 !important;
     }
 
     .step-icon-container {
@@ -42,6 +43,10 @@
     .step.active>.progress-indicator::before,
     .step.completed>.progress-indicator::before {
         border-color: var(--step-completed-bg);
+    }
+
+    .step.disabled>.progress-indicator::before{
+        border-color: var(--bs-secondary);
     }
 
     .step-icon-border {
@@ -84,6 +89,14 @@
         align-self: center;
         position: absolute;
     }
+
+        .step.disabled>.step-icon-container>.step-icon {
+            border-color: var(--bs-secondary);
+        }
+
+        .step.disabled>.step-icon-container>.step-icon>svg {
+            fill: var(--bs-secondary);
+        }
 
     @@media(max-width: 575px){
 
