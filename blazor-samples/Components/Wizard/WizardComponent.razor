@@ -5,6 +5,7 @@
         --step-active-color: white;
         --step-active-bg: var(--bs-primary);
         --step-completed-bg: var(--bs-success);
+        --step-disabled-color: var(--bs-secondary);
     }
 
     .step {
@@ -46,7 +47,7 @@
     }
 
     .step.disabled>.progress-indicator::before{
-        border-color: var(--bs-secondary);
+        border-color: var(--step-disabled-color);
     }
 
     .step-icon-border {
@@ -91,11 +92,11 @@
     }
 
         .step.disabled>.step-icon-container>.step-icon {
-            border-color: var(--bs-secondary);
+            border-color: var(--step-disabled-color);
         }
 
         .step.disabled>.step-icon-container>.step-icon>svg {
-            fill: var(--bs-secondary);
+            fill: var(--step-disabled-color);
         }
 
     @@media(max-width: 575px){
@@ -140,7 +141,7 @@
     @foreach (var (step, i) in Steps.Select((x, i) => (x, i)))
     {
         <Button Disabled="@(!step.Enabled)" class="@("flex-sm-fill text-sm-center nav-link step"+step.GetClass())"
-            Clicked="@(() => ChangeStep(step))">
+            Clicked="@(async () => await ChangeStep(step))">
             <div class="@("step-icon-container "  + (i > 0 ? "progress-indicator" : ""))">
                 <div class="step-icon-border"></div>
                 <div class="step-icon">
