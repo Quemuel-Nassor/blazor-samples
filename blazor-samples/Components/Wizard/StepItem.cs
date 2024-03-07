@@ -2,30 +2,28 @@ namespace blazor_samples.Components.Wizard;
 
 public class StepItem
 {
-    public Guid Id { get; }
+    static int indexStore;   
     public string Name { get; set; }
-    public int Index { get; set; }
-    public string Slug => Name?.Replace(" ", "-").ToLower();
+    public int Index { get; private set; }
+    public string Slug => Name?.Replace(" ", "-").ToLower().Trim();
     public string Icon { get; set; }
     public bool Active { get; set; }
     public bool Enabled { get; set; }
     public bool Completed { get; private set; }
 
-    public string GetClass()
-    {
-        return $" {(Active ? "active" : "")} {(Completed ? "completed" : "")} ";
-    }
+    public string GetClass() => $" {(Active ? "active" : "")} {(Completed ? "completed" : "")} ";
 
     public StepItem()
     {
-        Id = Guid.NewGuid();
+        Index = indexStore;
         PublisherHandler.Publisher.StepItemChangedEvent += ChangedEventHandler;
         PublisherHandler.Publisher.EnableAllStepsEvent += EnableStepEventHandler;
+        indexStore++;
     }
 
     void ChangedEventHandler(Object sender, StepItem e)
     {
-        if (e.Id != Id)
+        if (e.Index != Index)
             this.Active = false;
 
         if (e.Index > Index)
@@ -40,6 +38,7 @@ public class StepItem
     ~StepItem(){
         PublisherHandler.Publisher.StepItemChangedEvent -= ChangedEventHandler;
         PublisherHandler.Publisher.EnableAllStepsEvent -= EnableStepEventHandler;
+        indexStore--;
     }
 }
 
@@ -48,15 +47,8 @@ public class StepItemEventPublisher
     public event EventHandler<StepItem> StepItemChangedEvent;
     public event EventHandler<bool> EnableAllStepsEvent;
 
-    public void EnableAllSteps()
-    {
-        EnableAllStepsEvent(this, true);
-    }
-
-    public void OnChanged(StepItem changedItem)
-    {
-        StepItemChangedEvent(this, changedItem);
-    }
+    public void EnableAllSteps() => EnableAllStepsEvent(this, true);
+    public void OnChanged(StepItem changedItem) => StepItemChangedEvent(this, changedItem);
 }
 
 public static class PublisherHandler
