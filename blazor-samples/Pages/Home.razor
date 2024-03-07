@@ -8,21 +8,21 @@
         @foreach(var item in Items)
         {
             <TabPanel Name="@item.Slug">
-                <h3 class="my-4 text-center">@item.Name - index: @item.Index</h3>
+                <h3 class="my-4 text-center">@item.Name</h3>
                 <div class="row">
                     <Form class="col-12">
                         <Fields>
-                            <Field>
+                            <Field Class="mb-3">
                                 <FieldLabel>Lorem Ipsum</FieldLabel>
-                                <TextEdit class="placeholder"></TextEdit>
+                                <TextEdit class="" Placeholder="Type here ..."></TextEdit>
                             </Field>
-                            <Field>
+                            <Field Class="mb-3">
                                 <FieldLabel>Lorem Ipsum</FieldLabel>
-                                <TextEdit class="placeholder"></TextEdit>
+                                <TextEdit class="" Placeholder="Type here ..."></TextEdit>
                             </Field>
-                            <Field>
+                            <Field Class="mb-3">
                                 <FieldLabel>Lorem Ipsum</FieldLabel>
-                                <TextEdit class="placeholder"></TextEdit>
+                                <TextEdit class="" Placeholder="Type here ..."></TextEdit>
                             </Field>
                         </Fields>
                     </Form>
@@ -34,14 +34,14 @@
 
 <div class="row justify-content-between my-3">
     <div class="col-auto">
-        <Button Clicked="Previous">Previous</Button>
+        <Button Disabled="@((activeIndex??0) == 0)" Class="btn-outline-primary" Clicked="Previous"> <i class="fa fa-chevron-left align-middle me-1"></i> Previous </Button>
     </div>
     <div class="col-auto">
-        <Button Clicked="Next">Next</Button>
+        <Button Disabled="@((activeIndex??0) == Items.Count-1)" Class="btn-outline-primary" Clicked="Next">Next <i class="fa fa-chevron-right align-middle ms-1"></i></Button>
     </div>
 </div>
 
-<Button Clicked="EnableAllSteps">Enable all</Button>
+<Button class="btn-primary" Clicked="EnableAllSteps">Enable all</Button>
 
 @code
 {
@@ -81,6 +81,7 @@
     }
     };
     string selectedTab => Items.FirstOrDefault(x => x.Active)?.Slug;
+    int? activeIndex => Items.LastOrDefault(x => x.Active)?.Index;
 
     async Task EnableAllSteps() => await wizardRef.EnableAllSteps();
     async Task Previous() => await wizardRef.Previous();
