@@ -3,18 +3,19 @@ namespace blazor_samples.Components.Wizard;
 
 public partial class WizardComponent : ComponentBase
 {
-    StepItem ActiveStep { get; set; }
+    [Parameter]
+    public StepItem ActiveStep { get; set; }
+
+    [Parameter]
+    public EventCallback<StepItem> ActiveStepChanged { get; set; }
 
     [Parameter]
     public List<StepItem> Steps { get; set; } = new();
 
-    [Parameter]
-    public EventCallback<List<StepItem>> StepsChanged { get; set; }
-
     public async Task EnableAllSteps()
     {
         PublisherHandler.EnableAllSteps();
-        await StepsChanged.InvokeAsync(Steps);
+        await ActiveStepChanged.InvokeAsync(ActiveStep);
     }
 
     public async Task Next()
@@ -42,7 +43,7 @@ public partial class WizardComponent : ComponentBase
         ActiveStep = step;
         
         PublisherHandler.OnChanged(step);
-        await StepsChanged.InvokeAsync(Steps);
+        await ActiveStepChanged.InvokeAsync(ActiveStep);
     }
 
     protected override async void OnAfterRender(bool firstRender)

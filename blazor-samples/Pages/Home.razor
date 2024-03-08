@@ -1,7 +1,7 @@
 ﻿@using blazor_samples.Components.Wizard
 @page "/"
 
-<WizardComponent @ref="wizardRef" @bind-Steps="@Items"></WizardComponent>
+<WizardComponent @ref="wizardRef" Steps="@Items" @bind-ActiveStep="ActiveStep"></WizardComponent>
 
 <Tabs SelectedTab="@selectedTab">
     <Content>
@@ -32,12 +32,12 @@
     </Content>
 </Tabs>
 
-<div class="row justify-content-between my-3">
+<div class="row w-100 mx-0 justify-content-between">
     <div class="col-auto">
-        <Button Disabled="@((activeIndex??0) == 0)" Class="btn-outline-primary" Clicked="Previous"> <i class="fa fa-chevron-left align-middle me-1"></i> Previous </Button>
+        <a class="btn btn-primary @(isPreviousDisabled ? "disabled" : "")" @onclick="Previous" href="@($"#{selectedTab}")"> <i class="fa fa-chevron-left text-white align-middle me-1"></i> Voltar </a>
     </div>
     <div class="col-auto">
-        <Button Disabled="@((activeIndex??0) == Items.Count-1)" Class="btn-outline-primary" Clicked="Next">Next <i class="fa fa-chevron-right align-middle ms-1"></i></Button>
+        <a class="btn btn-primary @(isNextDisabled ? "disabled" : "")" @onclick="Next" href="@($"#{selectedTab}")"> Avançar <i class="fa fa-chevron-right text-white align-middle ms-1"></i></a>
     </div>
 </div>
 
@@ -80,8 +80,13 @@
             @* Icon = $"<i class=\"fas fa-check\"></i>" *@
     }
     };
-    string selectedTab => Items.FirstOrDefault(x => x.Active)?.Slug;
-    int? activeIndex => Items.LastOrDefault(x => x.Active)?.Index;
+
+    StepItem ActiveStep { get; set; }
+
+    string selectedTab => ActiveStep?.Slug;
+
+    bool isPreviousDisabled => (ActiveStep?.Index ?? 0) == 0;
+    bool isNextDisabled => (ActiveStep?.Index ?? 0) == Items.Count - 1;
 
     async Task EnableAllSteps() => await wizardRef.EnableAllSteps();
     async Task Previous() => await wizardRef.Previous();

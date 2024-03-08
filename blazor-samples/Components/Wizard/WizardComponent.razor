@@ -8,6 +8,19 @@
         --step-disabled-color: var(--bs-secondary);
     }
 
+    @@media(max-width: 575px) {
+        .steps-container
+        {
+            height: 13rem;
+            overflow: scroll;
+        }
+
+        .w-sm-100
+        {
+            width: 100%;
+        }
+    }
+
     .step {
         padding: 0 !important;
         background-color: transparent !important;
@@ -28,18 +41,8 @@
         width: 100%;
         top: 50%;
         left: -50%;
-        z-index: -1;
     }
 
-    @@media(max-width: 575px){
-        .progress-indicator::before {
-            border-left: 2px solid var(--step-color);
-            border-bottom: none !important;
-            height: 100%;
-            top: -50%;
-            left: 50%;
-        }
-    }
 
     .step.active>.progress-indicator::before,
     .step.completed>.progress-indicator::before {
@@ -61,6 +64,7 @@
         display: flex;
         position: absolute;
         align-self: center;
+        z-index: 2;
     }
 
     .step.active>.step-icon-container>.step-icon-border {
@@ -82,11 +86,13 @@
         border: 2px solid var(--step-color);
         background-color: var(--step-bg);
         border-radius: 50%;
+        z-index: 1;
     }
 
     .step-icon>svg {
         fill: var(--step-color);
         width: 1.5rem;
+        height: 1.5rem;
         align-self: center;
         position: absolute;
     }
@@ -102,17 +108,18 @@
     @@media(max-width: 575px){
 
         .step-icon-border {
-            width: 12rem;
-            height: 12rem;
+            width: 9rem;
+            height: 9rem;
         }
 
         .step-icon{
-            width: 12.5rem;
-            height: 12.5rem;
+            width: 9.5rem;
+            height: 9.5rem;
         }
         
         .step-icon>svg {
-            width: 6rem;
+            width: 5rem;
+            height: 5rem;
         }
     }
 
@@ -122,7 +129,8 @@
     }
 
     .step.active>.step-icon-container>.step-icon {
-        background-color: var(--step-active-bg);
+        background-color: var(--step-active-bg) !important;
+        border-color: var(--step-active-bg) !important;
     }
 
     .step.completed>.step-icon-container>.step-icon {
@@ -137,10 +145,10 @@
     }
 </style>
 
-<nav class="nav nav-pills flex-column flex-sm-row justify-content-around">
+<nav class="nav nav-pills flex-column flex-sm-row justify-content-around steps-container">
     @foreach (var (step, i) in Steps.Select((x, i) => (x, i)))
     {
-        <Button Disabled="@(!step.Enabled)" class="@("flex-sm-fill text-sm-center nav-link step"+step.GetClass())"
+        <Button id="@step.Slug" Disabled="@(!step.Enabled)" class="@("flex-sm-fill text-sm-center nav-link step w-sm-100"+step.GetClass())"
             Clicked="@(async () => await ChangeStep(step))">
             <div class="@("step-icon-container "  + (i > 0 ? "progress-indicator" : ""))">
                 <div class="step-icon-border"></div>
