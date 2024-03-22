@@ -1,10 +1,18 @@
 using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
 namespace blazor_samples.Components.Wizard;
 
-public partial class WizardComponent : ComponentBase
+public partial class WizardComponent : ComponentBase, IAsyncDisposable
 {
+    [Inject]
+    IJSRuntime JsRuntime { get; set; }
+    IJSObjectReference jsModule;
+
     [Parameter]
     public StepItem ActiveStep { get; set; }
+
+    [Parameter]
+    public bool DisableEnhancedNavigation { get; set; }
 
     [Parameter]
     public EventCallback<StepItem> ActiveStepChanged { get; set; }
@@ -23,7 +31,7 @@ public partial class WizardComponent : ComponentBase
         if (ActiveStep != null)
         {
             if (ActiveStep.Index < Steps.Count - 1)
-                await ChangeStep( Steps[ActiveStep.Index + 1]);
+                await ChangeStep(Steps[ActiveStep.Index + 1]);
         }
     }
 
@@ -36,23 +44,35 @@ public partial class WizardComponent : ComponentBase
         }
     }
 
-    async Task ChangeStep(StepItem step)
+    public async Task ChangeStep(StepItem step)
     {
         step.Active = true;
-        step.Enabled = true;
+        step.Enabled = !DisableEnhancedNavigation;
         ActiveStep = step;
-        
+
         PublisherHandler.OnChanged(step);
         await ActiveStepChanged.InvokeAsync(ActiveStep);
+        if (ActiveStep.Slug != null)
+            await jsModule.InvokeVoidAsync("scrollToActiveStep", ActiveStep.Slug);
     }
 
     protected override async void OnAfterRender(bool firstRender)
     {
         if (firstRender)
         {
-            ActiveStep = Steps.FirstOrDefault();
+            jsModule = await JsRuntime.InvokeAsync<IJSObjectReference>("import", $"./Components/Wizard/WizardComponent.razor.js");
+            ActiveStep = Steps.FirstOrDefault(x => x.Active) ?? Steps.FirstOrDefault();
+
+            await jsModule.InvokeVoidAsync("setStepIndicatorWidth");
+
             if (ActiveStep != null)
                 await ChangeStep(ActiveStep);
         }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (jsModule is not null)
+            await jsModule.DisposeAsync();
     }
 }

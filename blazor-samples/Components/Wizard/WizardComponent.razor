@@ -1,22 +1,21 @@
 <style>
-    :root {
+     :root {
         --step-color: var(--bs-primary);
         --step-bg: white;
         --step-active-color: white;
         --step-active-bg: var(--bs-primary);
         --step-completed-bg: var(--bs-success);
         --step-disabled-color: var(--bs-secondary);
+        --container-width: 1016px;
     }
 
-    @@media(max-width: 575px) {
-        .steps-container
-        {
+    @@media(max-width: 991px) {
+        .steps-container {
             height: 13rem;
             overflow: scroll;
         }
 
-        .w-sm-100
-        {
+        .w-sm-100 {
             width: 100%;
         }
     }
@@ -37,19 +36,18 @@
     .progress-indicator::before {
         position: absolute;
         content: "";
-        border-bottom: 2px solid var(--step-color);
-        width: 100%;
+        border-bottom: 3px solid var(--step-color);
         top: 50%;
-        left: -50%;
+        width: calc((var(--container-width) - (99% * @Steps.Count(x => x.Visible))) / @(Steps.Count(x => x.Visible)-1));
+        transform: translateX(calc(-50% - 1.70rem));
     }
 
-
-    .step.active>.progress-indicator::before,
-    .step.completed>.progress-indicator::before {
+    .step.active > .progress-indicator::before,
+    .step.completed > .progress-indicator::before {
         border-color: var(--step-completed-bg);
     }
 
-    .step.disabled>.progress-indicator::before{
+    .step.disabled > .progress-indicator::before {
         border-color: var(--step-disabled-color);
     }
 
@@ -67,13 +65,13 @@
         z-index: 2;
     }
 
-    .step.active>.step-icon-container>.step-icon-border {
+    .step.active > .step-icon-container > .step-icon-border {
         border-color: var(--step-active-color) !important;
         border-style: dashed;
-        animation: spin 6s linear infinite;
+        animation: spinner-border 6s linear infinite;
     }
 
-    .step.completed>.step-icon-container>.step-icon-border {
+    .step.completed > .step-icon-container > .step-icon-border {
         border-color: var(--step-active-color) !important;
     }
 
@@ -89,73 +87,83 @@
         z-index: 1;
     }
 
-    .step-icon>svg {
-        fill: var(--step-color);
-        width: 1.5rem;
-        height: 1.5rem;
-        align-self: center;
-        position: absolute;
-    }
-
-        .step.disabled>.step-icon-container>.step-icon {
-            border-color: var(--step-disabled-color);
+        .step-icon > svg {
+            fill: var(--step-color);
+            width: 1.5rem;
+            height: 1.5rem;
+            align-self: center;
+            position: absolute;
         }
 
-        .step.disabled>.step-icon-container>.step-icon>svg {
+    .step.disabled > .step-icon-container > .step-icon {
+        border-color: var(--step-disabled-color);
+    }
+
+        .step.disabled > .step-icon-container > .step-icon > svg {
             fill: var(--step-disabled-color);
         }
 
-    @@media(max-width: 575px){
+    @@media(max-width: 991px) {
+        .progress-indicator::before {
+            top: 50% !important;
+            width: calc(100% - 9.25rem) !important;
+            transform: translateX(calc(-50% - 4.75rem)) !important;
+        }
 
         .step-icon-border {
             width: 9rem;
             height: 9rem;
+            border-width: 4px !important;
         }
 
-        .step-icon{
+        .step-icon {
             width: 9.5rem;
             height: 9.5rem;
         }
-        
-        .step-icon>svg {
-            width: 5rem;
-            height: 5rem;
+
+            .step-icon > svg {
+                width: 5rem;
+                height: 5rem;
+            }
+
+        .step-icon-container {
+            margin-bottom: .5rem !important;
         }
     }
 
-    .step.active>.step-icon-container>.step-icon>svg,
-    .step.step.completed>.step-icon-container>.step-icon>svg {
+    .step.active > .step-icon-container > .step-icon > svg,
+    .step.step.completed > .step-icon-container > .step-icon > svg {
         fill: var(--step-active-color);
     }
 
-    .step.active>.step-icon-container>.step-icon {
+    .step.active > .step-icon-container > .step-icon {
         background-color: var(--step-active-bg) !important;
         border-color: var(--step-active-bg) !important;
     }
 
-    .step.completed>.step-icon-container>.step-icon {
+    .step.completed > .step-icon-container > .step-icon {
         background-color: var(--step-completed-bg);
         border-color: var(--step-completed-bg);
     }
-
-    @@keyframes spin {
-        100% {
-            transform: rotateZ(360deg);
-        }
-    }
 </style>
 
-<nav class="nav nav-pills flex-column flex-sm-row justify-content-around steps-container">
+<nav class="nav nav-pills flex-column flex-lg-row justify-content-md-between steps-container">
     @foreach (var (step, i) in Steps.Select((x, i) => (x, i)))
     {
-        <Button id="@step.Slug" Disabled="@(!step.Enabled)" class="@("flex-sm-fill text-sm-center nav-link step w-sm-100"+step.GetClass())"
-            Clicked="@(async () => await ChangeStep(step))">
-            <div class="@("step-icon-container "  + (i > 0 ? "progress-indicator" : ""))">
-                <div class="step-icon-border"></div>
-                <div class="step-icon">
-                    @((MarkupString)step.Icon)
-                </div>
-            </div>
-        </Button>
+        if (step.Visible)
+        {
+            <Tooltip id="@step.Slug" Text="@($"<span style=\"color: white\">{step.Name}</span>")" Class="w-sm-100">
+                <Button Disabled="@(!step.Enabled)" class="@($"text-center step w-sm-100{step.GetClass()}")"
+                        Clicked="@(async () => await ChangeStep(step))">
+                    <div class="@("step-icon-container "  + (i > 0 ? "progress-indicator" : ""))">
+                        <div class="step-icon-border"></div>
+                        <div class="step-icon">
+                            @((MarkupString)step.Icon)
+                        </div>
+                    </div>
+                    <Span Class="d-lg-none text-primary">@step.Name</Span>
+                </Button>
+            </Tooltip>
+        }
     }
 </nav>

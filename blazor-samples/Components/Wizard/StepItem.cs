@@ -1,15 +1,21 @@
+using blazor_samples.Utils;
+using Microsoft.AspNetCore.Components.Forms;
+
 namespace blazor_samples.Components.Wizard;
 
 public class StepItem
 {
-    static int indexStore;   
+    static int indexStore;
     public string Name { get; set; }
     public int Index { get; private set; }
-    public string Slug => Name?.Replace(" ", "-").ToLower().Trim();
+    public string Slug => Name.Slug();
     public string Icon { get; set; }
     public bool Active { get; set; }
     public bool Enabled { get; set; }
+    public bool Visible { get; set; } = true;
     public bool Completed { get; private set; }
+    public EditContext EditContext { get; set; }
+    public bool IsValid => EditContext?.Validate() ?? false;
 
     public string GetClass() => $" {(Active ? "active" : "")} {(Completed ? "completed" : "")} ";
 
@@ -35,7 +41,8 @@ public class StepItem
         Enabled = true;
     }
 
-    ~StepItem(){
+    ~StepItem()
+    {
         PublisherHandler.Publisher.StepItemChangedEvent -= ChangedEventHandler;
         PublisherHandler.Publisher.EnableAllStepsEvent -= EnableStepEventHandler;
         indexStore--;
